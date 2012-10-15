@@ -9,6 +9,12 @@ from collections import deque
 
 import pyirc.Message, pyirc.Plugin
 
+def messageHandler(*typelist):
+	def func(f):
+		f.msgtypes = typelist
+		return f
+	return func
+
 class Bot:
 	def changeNick(self, nick):
 		self.send('NICK {nick:s}'.format(nick=nick))
@@ -36,7 +42,7 @@ class Bot:
 		return self
 
 	def _sendImmediate(self, msg):
-		if self.debug: print('<-- {:s}'.format(msg))
+		if self.debug: print('\r<-- {:s}'.format(msg))
 		self.conn.send((msg + '\r\n').encode('utf8'))
 
 	def say(self, recp, msg):
@@ -78,6 +84,15 @@ class Bot:
 
 		self.channels = {}
 		self.plugins = set()
+		self.registerMessageHandlers()
+
+	def registerMessageHandlers(self):
+		self.handlers = {}
+		for func in dir(self):
+			f = getattr(self, func)
+			if hasattr(f, 'msgtypes'):
+				for t in f.msgtypes:
+					self.handlers[t] = f
 
 	def authenticate(self):
 		if self.passwd is not None:
@@ -102,7 +117,7 @@ class Bot:
 					for v in mname.split('.')[1:]:
 						mod = mod[v].__dict__
 					for p in mod.values():
-						if p in pyirc.Plugin.Plugin.__subclasses__():
+						if type(p) == type and issubclass(p, pyirc.Plugin.Plugin):
 							self.addPlugin(p(self))
 		return self
 
@@ -122,10 +137,10 @@ class Bot:
 						self.authenticate()
 					while len(self.joinq):
 						chan = self.joinq.popleft()
-					
+				
 						if chan not in self.channels.values():
 							self.send('JOIN {chan:s}'.format(chan=chan))
-							self.channels[chan] = set()
+							self.channels[chan] = Bot.Channel(chan)
 
 					clock = time.time()
 					for p in self.plugins:
@@ -151,48 +166,84 @@ class Bot:
 			self.handle(pyirc.Message.Message(m))
 	   
 	def handle(self, msg):
-		if self.debug: print('--> {:s}'.format(msg))
+		if self.debug: print('\r--> {:s}'.format(msg))
+
 		if msg.isPing():
 			self._sendImmediate(msg.getPong())
-		else:
+		elif msg.msgtype in self.handlers:
 			body = msg.getMessageText()
 			chan, nick, subnet = msg.getDelivery()
+
+			# call the appropriate message handler
+			self.handlers[msg.msgtype](msg, body, chan, nick, subnet)
+
+	@messageHandler('PRIVMSG')
+	def msg_PRIVMSG(self, msg, body, chan, nick, subnet):
+		for p in self.plugins:
+			p.handleChat(chan, nick, body)
+
+		if body.startswith(pyirc.Message.Message.commandChar):
+			cmd, *args = shlex.split(body[1:])
+			for p in self.plugins:
+				p.handleCommand(chan, nick, cmd, args)
+
+	@messageHandler('JOIN')
+	def msg_JOIN(self, msg, body, chan, nick, subnet):
+		for p in self.plugins:
+			p.onChannelJoin(chan, nick)
+
+	@messageHandler('PART')
+	def msg_PART(self, msg, body, chan, nick, subnet):
+		for p in self.plugins:
+			p.onChannelPart(chan, nick)
+
+	@messageHandler('QUIT')
+	def msg_QUIT(self, msg, body, chan, nick, subnet):
+		for p in self.plugins:
+			p.onQuit(chan, nick, reason=body)
+
+	@messageHandler('NICK')
+	def msg_NICK(self, msg, body, chan, nick, subnet):
+		oldnick, newnick = nick, body
+		print('nick change', oldnick, newnick)
+		for p in self.plugins:
+			p.onNickChange(oldnick, newnick)
+		for chan,cinfo in self.channels.items():
+			if oldnick in cinfo.users:
+				cinfo.users[newnick] = cinfo.users[oldnick]
+				del cinfo.users[oldnick]
+
+	@messageHandler('KICK')
+	def msg_KICK(self, msg, body, chan, nick, subnet):
+		for p in self.plugins:
+			p.onQuit(chan, msg.get(3), reason=body)
+
+	@messageHandler('INVITE')
+	def msg_INVITE(self, msg, body, chan, nick, subnet):
+		if self.nick == msg.get(2):
+			for p in self.plugins:
+				p.onInvite(msg.get(3))
 			
-			if msg.msgtype == '001':
-				print('Connection established.')
-				self.connected = True
+	@messageHandler('001')
+	def msg_connect(self, msg, body, chan, nick, subnet):
+		print('Connection established.')
+		self.connected = True
 
-			elif msg.msgtype == 'PRIVMSG':
-				for p in self.plugins:
-					p.handleChat(chan, nick, body)
+	@messageHandler('353')
+	def msg_names(self, msg, body, chan, nick, subnet):
+		if chan not in self.channels: return
+		chaninfo = self.channels[chan]
 
-				if body.startswith(pyirc.Message.commandChar):
-					cmd, *args = shlex.split(body[1:])
-					for p in self.plugins:
-						p.handleCommand(chan, nick, cmd, args)
+		for name in body.strip().split():
+			flags = set() # TODO
+			name = name.lstrip('@+')
+			chaninfo.users[name] = flags
 
-			elif msg.msgtype == 'JOIN':
-				for p in self.plugins:
-					p.onChannelJoin(chan, nick)
+	class Channel:
+		def __init__(self, chan):
+			self.name = chan
+			self.users = dict()
 
-			elif msg.msgtype == 'PART':
-				for p in self.plugins:
-					p.onChannelPart(chan, nick)
-
-			elif msg.msgtype == 'QUIT':
-				for p in self.plugins:
-					p.onQuit(chan, nick, reason=body)
-
-			elif msg.msgtype == 'NICK':
-				for p in self.plugins:
-					p.onNickChange(nick, msg.get(2))
-
-			elif msg.msgtype == 'KICK':
-				for p in self.plugins:
-					p.onQuit(chan, msg.get(3), reason=body)
-
-			elif msg.msgtype == 'INVITE':
-				if self.nick == msg.get(2):
-					for p in self.plugins:
-						p.onInvite(msg.get(3))
-					
+		def __hash__(self):
+			return hash(self.name)
+		

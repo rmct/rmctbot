@@ -2,7 +2,9 @@ import re
 
 class Message:
 	commandChar = '!'
-	deliveryParser = re.compile("^:([^ !]+?)!([^ ]+?)$", re.I)
+
+	deliveryParser = re.compile('^:([^ !]+?)!([^ ]+?)$', re.I)
+	channelFinder = re.compile('(#[^ ]+)', re.I)
 
 	def get(self, n):
 		if self.msg is None: return None
@@ -43,7 +45,8 @@ class Message:
 		return None if parse is None else parse.group(2)
 
 	def getChannel(self):
-		return self.get(2)
+		csearch = Message.channelFinder.search(self.msg)
+		return None if csearch is None else csearch.group(1)
 
 	def getDelivery(self):
 		return self.getChannel(), self.getNick(), self.getSubnet() 
