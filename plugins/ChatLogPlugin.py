@@ -1,4 +1,5 @@
-import os, csv, time
+import os, csv
+import datetime
 
 import pyirc.Plugin
 
@@ -16,9 +17,11 @@ class ChatLogPlugin(pyirc.Plugin.Plugin):
 					
 	def _writelog(self, chan, msg):
 		if chan not in self.loginfo: return
-		dfile = os.path.join(self.loginfo[chan], time.strftime('%Y-%m-%d.txt'))
+		now = datetime.datetime.now(datetime.timezone.utc)
+		dfile = os.path.join(self.loginfo[chan], now.strftime('%Y-%m-%d.txt'))
 		with open(dfile, 'a') as log:
-			print(msg, file=log)
+			t = now.strftime('%H:%M:%S')
+			print('[{:s}] {:s}'.format(t, msg), file=log)
 
 	def handleChat(self, chan, sender, msg):
 		self._writelog(chan, '<{:s}> {:s}'.format(sender, msg))
