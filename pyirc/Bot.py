@@ -241,6 +241,7 @@ class Bot:
 	@messageHandler('001')
 	def msg_connect(self, msg, body, chan, nick, subnet):
 		print('Connection established.')
+		self._sendImmediate('MODE {:s} +x'.format(self.nick))
 		self.connected = True
 
 	@messageHandler('353')
