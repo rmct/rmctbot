@@ -1,15 +1,22 @@
+"""
+RedditPlugin by authorblues
+
+config:
+	subreddits = a comma-seperated list of subreddits to monitor
+	delay-minutes = number of minutes between updates
+"""
+
 import urllib.request, urllib.error, json
 
 import pyirc.Plugin
 
 class RedditPlugin(pyirc.Plugin.Plugin):
-	subs = ['mctourney', 'championsofthemap']
-
 	def __init__(self, bot):
 		super().__init__(bot)
-		self.setIdleTimer(60.0 * 5)
+		self.setIdleTimer(60.0 * int(self.getConfig('delay-minutes')))
 		self.lastid = None
 
+		self.subs = self.getConfig('subreddits').split(',')
 		self.req = urllib.request.Request('http://www.reddit.com/r/{:s}/new.json?limit=5'.format('+'.join(self.subs)),
 			headers = {'User-Agent': '{:s}@{:s} -- github.com/rmct/rmctbot'.format(self.bot.real, self.bot.host)})
 

@@ -1,15 +1,18 @@
+"""
+AnnouncementPlugin by authorblues
+
+config:
+	calendars = a comma-seperated list of calendars to monitor
+	delay-minutes = number of minutes between updates
+	announcement-minutes = comma-seperated list of minutes to announce prior to an event
+"""
+
 import sys, urllib.request, json
 import datetime
 
 import pyirc.Plugin
 
 class AnnouncementPlugin(pyirc.Plugin.Plugin):
-	gcals = ['reddit.mctourney@gmail.com', 'admin@championsofthemap.com']
-	feeds = dict()
-
-	# number of minutes before the event to announce
-	announceMinutes = [0, 60]
-
 	def __init__(self, bot):
 		super().__init__(bot)
 		self.setIdleTimer(60.0)
@@ -17,6 +20,17 @@ class AnnouncementPlugin(pyirc.Plugin.Plugin):
 		self.updateFrequency = 20
 		self.updateTicks = 0
 		self.lastCheck = datetime.datetime.now(datetime.timezone.utc)
+
+		self.feeds = dict()
+		self.gcals = self.getConfig('calendars').split(',')
+		self.processCalendars(*self.gcals)
+
+		self.announceMinutes = [int(x.strip()) for x in self.getConfig('announcement-minutes').split(',')]
+
+	def processCalendars(self, *cals):
+		for gcal in cals:
+			self.feeds['http://www.google.com/calendar/feeds/' + gcal.strip() + '/public/full?alt=json&max-results=5' +
+				'&orderby=starttime&singleevents=true&sortorder=ascending&futureevents=true&ctz=Etc/GMT'] = None
 
 	def idle(self):
 		for url,feed in self.feeds.items():
@@ -46,10 +60,6 @@ class AnnouncementPlugin(pyirc.Plugin.Plugin):
 		self.updateTicks %= self.updateFrequency
 		self.lastCheck = now
 		return True
-
-for gcal in AnnouncementPlugin.gcals:
-	AnnouncementPlugin.feeds['http://www.google.com/calendar/feeds/' + gcal + '/public/full?alt=json' +
-	    '&orderby=starttime&max-results=5&singleevents=true&sortorder=ascending&futureevents=true&ctz=Etc/GMT'] = None
 
 def m2time(mn):
 	if not mn: return 'now'

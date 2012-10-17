@@ -4,6 +4,7 @@ import imp
 import socket, select
 import shlex
 import time
+import configparser
 
 from collections import deque
 
@@ -84,12 +85,14 @@ class Bot:
 		self.real = real if real is not None else nick
 		self.passwd = passwd
 
-		self.send('PASS {passwd:s}'.format(passwd=passwd)).changeNick(nick)
+		self.send('PASS {passwd:s}'.format(passwd=passwd))
+		self.changeNick(nick)
 		self.send('USER {nick:s} {host:s} * :{real:s}'.format(nick=nick, host=host, real=real))
 
 		self.channels = {}
 		self.plugins = set()
 		self.registerMessageHandlers()
+		self.config = configparser.SafeConfigParser()
 
 	def registerMessageHandlers(self):
 		self.handlers = {}
@@ -98,6 +101,10 @@ class Bot:
 			if hasattr(f, 'msgtypes'):
 				for t in f.msgtypes:
 					self.handlers[t] = f
+
+	def loadConfig(self, *filenames):
+		self.config.read(*filenames)
+		return self
 
 	def authenticate(self):
 		if self.passwd is not None:

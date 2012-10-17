@@ -48,6 +48,16 @@ class Plugin:
 	def getPluginName(self):
 		return self.__class__.__name__
 
+	def getConfig(self, option):
+		if self.bot.config is None or not self.bot.config.has_option(self.getPluginName(), option):
+			return None
+		return self.bot.config.get(self.getPluginName(), option)
+
+	def getConfigOptions(self):
+		if self.bot.config is not None and self.bot.config.has_section(self.getPluginName()):
+			return self.bot.config.options(self.getPluginName())
+		return []
+
 	def log(self, message):
 		now = datetime.datetime.now()
 		now -= datetime.timedelta(microseconds=now.microsecond)

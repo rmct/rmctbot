@@ -1,19 +1,24 @@
+"""
+RedditPlugin by authorblues
+
+config:
+	# supports multiple lines of the following
+	* = <channel-name>:<log-directory>
+"""
+
 import os, csv
 import datetime
 
 import pyirc.Plugin
 
 class ChatLogPlugin(pyirc.Plugin.Plugin):
-	confFile = 'logging.conf'
-
 	def __init__(self, bot):
 		super().__init__(bot)
 		self.loginfo = dict()
-		if os.path.exists(ChatLogPlugin.confFile):
-			with open(ChatLogPlugin.confFile, 'r') as f:
-				for chan, logdir in csv.reader(f):
-					bot.join(chan)
-					self.loginfo[chan] = logdir
+		for opt in self.getConfigOptions():
+			chan, logdir = self.getConfig(opt).strip().split(':')
+			bot.join(chan)
+			self.loginfo[chan] = logdir
 					
 	def _writelog(self, chan, msg):
 		if chan not in self.loginfo: return

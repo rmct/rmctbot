@@ -1,3 +1,9 @@
+"""
+PingPlugin by authorblues
+
+config: none
+"""
+
 import pyirc.Plugin
 
 class PingPlugin(pyirc.Plugin.Plugin):
