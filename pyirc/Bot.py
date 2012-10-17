@@ -214,7 +214,7 @@ class Bot:
 	@messageHandler('QUIT')
 	def msg_QUIT(self, msg, body, chan, nick, subnet):
 		for p in self.plugins:
-			p.onQuit(chan, nick, reason=body)
+			p.onQuit(nick, reason=body)
 
 	@messageHandler('NICK')
 	def msg_NICK(self, msg, body, chan, nick, subnet):
