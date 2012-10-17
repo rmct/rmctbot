@@ -55,6 +55,11 @@ class Bot:
 		self.say(recp, '{:s}: {:s}'.format(target, msg))
 		return self
 
+	def sayAll(self, msg):
+		for chan in self.getChannels():
+			self.say(chan, msg)
+		return self
+
 	def getChannels(self):
 		return self.channels.keys()
 
@@ -189,11 +194,15 @@ class Bot:
 
 	@messageHandler('JOIN')
 	def msg_JOIN(self, msg, body, chan, nick, subnet):
+		if chan in self.channels:
+			self.channels[chan].users[nick] = set() # TODO
 		for p in self.plugins:
 			p.onChannelJoin(chan, nick)
 
 	@messageHandler('PART')
 	def msg_PART(self, msg, body, chan, nick, subnet):
+		if chan in self.channels:
+			del self.channels[chan].users[nick]
 		for p in self.plugins:
 			p.onChannelPart(chan, nick)
 

@@ -1,4 +1,4 @@
-import os, csv
+import os, csv, time
 
 import pyirc.Plugin
 
@@ -16,7 +16,8 @@ class ChatLogPlugin(pyirc.Plugin.Plugin):
 					
 	def _writelog(self, chan, msg):
 		if chan not in self.loginfo: return
-		with open(os.path.join(self.loginfo[chan], 'log.txt'), 'a') as log:
+		dfile = os.path.join(self.loginfo[chan], time.strftime('%Y-%m-%d.txt'))
+		with open(dfile, 'a') as log:
 			print(msg, file=log)
 
 	def handleChat(self, chan, sender, msg):
@@ -45,3 +46,4 @@ class ChatLogPlugin(pyirc.Plugin.Plugin):
 			if oldnick in cinfo.users:
 				self._writelog(chan, '{:s} is now known as {:s}'.format(oldnick, newnick))
 		return True
+
