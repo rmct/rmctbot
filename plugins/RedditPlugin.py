@@ -7,7 +7,7 @@ class RedditPlugin(pyirc.Plugin.Plugin):
 
 	def __init__(self, bot):
 		super().__init__(bot)
-		self.setIdleTimer(10.0)
+		self.setIdleTimer(60.0 * 5)
 		self.lastid = None
 
 		self.req = urllib.request.Request('http://www.reddit.com/r/{:s}/new.json?limit=5'.format('+'.join(self.subs)),
