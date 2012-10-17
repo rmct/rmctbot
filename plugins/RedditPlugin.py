@@ -29,6 +29,10 @@ class RedditPlugin(pyirc.Plugin.Plugin):
 				
 					if len(entries):
 						self.lastid = entries[0]['data']['id']
+
+					# this is a hack :)
+					if self.lastid is None:
+						self.lastid = '#'
 				except KeyError as e:
 					pass
 		except urllib.error.HTTPError as e:
