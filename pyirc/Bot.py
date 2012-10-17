@@ -219,7 +219,6 @@ class Bot:
 	@messageHandler('NICK')
 	def msg_NICK(self, msg, body, chan, nick, subnet):
 		oldnick, newnick = nick, body
-		print('nick change', oldnick, newnick)
 		for p in self.plugins:
 			p.onNickChange(oldnick, newnick)
 		for chan,cinfo in self.channels.items():
