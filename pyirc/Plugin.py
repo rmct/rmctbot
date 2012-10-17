@@ -7,6 +7,9 @@ class Plugin:
 	
 	def handleChat(self, chan, sender, msg):
 		return False
+	
+	def handleAction(self, chan, sender, msg):
+		return self.handleChat(chan, sender, msg)
 
 	def handlePrivateMessage(self, sender, msg):
 		return self.handleChat(sender, sender, msg)

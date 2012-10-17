@@ -27,6 +27,10 @@ class ChatLogPlugin(pyirc.Plugin.Plugin):
 		self._writelog(chan, '<{:s}> {:s}'.format(sender, msg))
 		return True
 
+	def handleAction(self, chan, sender, msg):
+		self._writelog(chan, '* {:s} {:s}'.format(sender, msg))
+		return True
+
 	def onChannelJoin(self, chan, nick):
 		self._writelog(chan, '{:s} joined {:s}'.format(nick, chan))
 		return True

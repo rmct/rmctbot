@@ -184,8 +184,13 @@ class Bot:
 
 	@messageHandler('PRIVMSG')
 	def msg_PRIVMSG(self, msg, body, chan, nick, subnet):
-		for p in self.plugins:
-			p.handleChat(chan, nick, body)
+		if body.startswith("\u0001ACTION") and body.endswith("\u0001"):
+			body = body[8:-1]
+			for p in self.plugins:
+				p.handleAction(chan, nick, body)
+		else:
+			for p in self.plugins:
+				p.handleChat(chan, nick, body)
 
 		if body.startswith(pyirc.Message.Message.commandChar):
 			cmd, *args = shlex.split(body[1:])
