@@ -15,8 +15,8 @@ class RandomMessagePlugin(pyirc.Plugin.Plugin):
 	def __init__(self, bot):
 		super().__init__(bot)
 		self.setIdleTimer(60.0*int(self.getConfig('delay-minutes')))
-		self.messageCount = 0
 		self.messageThreshold = int(self.getConfig('message-threshold', 5))
+		self.messageCount = 0
 
 	def handleChat(self, chan, sender, msg):
 		self.messageCount += 1
@@ -25,4 +25,4 @@ class RandomMessagePlugin(pyirc.Plugin.Plugin):
 		if self.messageCount < self.messageThreshold: return
 		self.messageCount = 0
 		with open(self.getConfig('message-file', 'messages.txt'), 'r') as f:
-			self.bot.sayAll(random.choice(f.readlines()))
+			self.bot.sayAll(random.choice(f.readlines()).strip())
