@@ -48,9 +48,9 @@ class Plugin:
 	def getPluginName(self):
 		return self.__class__.__name__
 
-	def getConfig(self, option):
+	def getConfig(self, option, default=None):
 		if self.bot.config is None or not self.bot.config.has_option(self.getPluginName(), option):
-			return None
+			return default
 		return self.bot.config.get(self.getPluginName(), option)
 
 	def getConfigOptions(self):
