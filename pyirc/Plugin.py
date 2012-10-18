@@ -1,9 +1,14 @@
 import time, datetime
 
 class Plugin:
-	def __init__(self, bot):
+	PRIORITY_HIGH = -100
+	PRIORITY_NORMAL = 0
+	PRIORITY_LOW = 100
+
+	def __init__(self, bot, priority=0):
 		self.idledelay = None
 		self.bot = bot
+		self.priority = priority
 	
 	def handleChat(self, chan, sender, msg):
 		return False

@@ -5,6 +5,7 @@ import socket, select
 import shlex
 import time
 import configparser
+import operator
 
 from collections import deque
 
@@ -24,7 +25,8 @@ class Bot:
 
 	def join(self, *chans):
 		for chan in chans:
-			self.joinq.append(chan)
+			if chan not in self.joinq:
+				self.joinq.append(chan)
 		return self
 
 	def part(self, *chans):
@@ -100,13 +102,13 @@ class Bot:
 		self.changeNick(nick)
 		self.send('USER {nick:s} {host:s} * :{real:s}'.format(nick=nick, host=host, real=real))
 
-		self.channels = {}
-		self.plugins = set()
+		self.plugins = []
+		self.channels = dict()
 		self.registerMessageHandlers()
 		self.config = configparser.SafeConfigParser()
 
 	def registerMessageHandlers(self):
-		self.handlers = {}
+		self.handlers = dict()
 		for func in dir(self):
 			f = getattr(self, func)
 			if hasattr(f, 'msgtypes'):
@@ -146,7 +148,8 @@ class Bot:
 
 	def addPlugin(self, plugin):
 		print('* Loading {:s}'.format(plugin.getPluginName()))
-		self.plugins.add(plugin)
+		self.plugins.append(plugin)
+		self.plugins.sort(key=operator.attrgetter('priority'))
 
 	def listen(self):
 		try:

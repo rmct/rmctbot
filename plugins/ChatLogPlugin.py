@@ -13,7 +13,7 @@ import pyirc.Plugin
 
 class ChatLogPlugin(pyirc.Plugin.Plugin):
 	def __init__(self, bot):
-		super().__init__(bot)
+		super().__init__(bot, priority=self.PRIORITY_HIGH)
 		self.loginfo = dict()
 		for opt in self.getConfigOptions():
 			chan, logdir = self.getConfig(opt).strip().split(':')
