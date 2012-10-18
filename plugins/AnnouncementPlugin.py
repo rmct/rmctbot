@@ -9,6 +9,7 @@ config:
 
 import sys, urllib.request, json
 import datetime
+import operator
 
 import pyirc.Plugin
 
@@ -31,6 +32,33 @@ class AnnouncementPlugin(pyirc.Plugin.Plugin):
 		for gcal in cals:
 			self.feeds['http://www.google.com/calendar/feeds/' + gcal.strip() + '/public/full?alt=json&max-results=5' +
 				'&orderby=starttime&singleevents=true&sortorder=ascending&futureevents=true&ctz=Etc/GMT'] = None
+
+	def handleCommand(self, chan, sender, cmd, args):
+		if cmd == 'upcoming':
+			nextevents = set()
+			now = datetime.datetime.now(datetime.timezone.utc)
+			for url,feed in self.feeds.items():
+				feed = self.feeds[url] = json.loads(urllib.request.urlopen(url).read().decode('utf8'))
+
+				if 'entry' not in feed['feed']: continue
+				for entry in feed['feed']['entry']:
+					try:
+						# how long until the event takes place
+						when = datetime.datetime.strptime(entry['gd$when'][0]['startTime'], 
+							'%Y-%m-%dT%H:%M:%S.000Z').replace(tzinfo=datetime.timezone.utc)
+						nextevents.add((entry['title']['$t'], when))
+						break
+					except ValueError as e:
+						pass
+
+			if not len(nextevents):
+				self.bot.say(chan, 'No upcoming events are scheduled at this time.')
+				return True
+
+			title, when = min(nextevents, key=operator.itemgetter(1))
+			howlong = (when - now).total_seconds() // 60
+			self.bot.say(chan, 'Next event is "{:s}" starting {:s}'.format(title, m2time(howlong)))
+			return True
 
 	def idle(self):
 		for url,feed in self.feeds.items():
@@ -73,4 +101,3 @@ def m2time(mn):
 			s.append('%d%s' % (n, unit))
 		if not k: break
 	return 'in ' + ' '.join(reversed(s))
-
