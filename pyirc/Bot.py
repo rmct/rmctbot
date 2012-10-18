@@ -74,7 +74,7 @@ class Bot:
 	def isUserVoiced(self, chan, user):
 		if chan not in self.channels: return False
 		if user not in self.channels[chan].users: return False
-		return 'v' in self.channels[chan].users[user]
+		return any(x in self.channels[chan].users[user] for x in frozenset('vo'))
 
 	def __init__(self, nick, host, port=6667, passwd=None, real=None, debug=False):
 		self.mbfr = deque()
@@ -267,6 +267,7 @@ class Bot:
 		if target.startswith('#') and user is not None:
 			flags = set(mode[1:])
 
+			if 'user' not in self.channels[target].users[user]: return
 			uflags = self.channels[target].users[user]
 			if mode.startswith('-'): uflags = uflags - flags
 			if mode.startswith('+'): uflags = uflags | flags
