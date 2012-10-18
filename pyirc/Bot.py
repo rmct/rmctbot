@@ -77,6 +77,7 @@ class Bot:
 
 		self.connected = False
 		self.authenticated = False
+		self.hostmasked = False
 
 		self.host, self.port, self.conn = host, port, None
 		while self.conn is None:
@@ -153,7 +154,7 @@ class Bot:
 				if self.connected:
 					if not self.authenticated:
 						self.authenticate()
-					while len(self.joinq):
+					while self.hostmasked and len(self.joinq):
 						chan = self.joinq.popleft()
 				
 						if chan not in self.channels.values():
@@ -249,6 +250,22 @@ class Bot:
 		if self.nick == msg.get(2):
 			for p in self.plugins:
 				p.onInvite(msg.get(3))
+
+	@messageHandler('MODE')
+	def msg_MODE(self, msg, body, chan, nick, subnet):
+		mode = msg.get(3)
+		target = msg.get(2)
+
+		if target.startswith('#'):
+			flags = set(mode[1:])
+
+			uflags = self.channels[target].users[msg.get(4)]
+			if mode.startswith('-'): uflags = uflags - flags
+			if mode.startswith('+'): uflags = uflags | flags
+			self.channels[target].users[msg.get(4)] = uflags
+
+		if target == self.nick:
+			if mode == '+x': self.hostmasked = True
 			
 	@messageHandler('001')
 	def msg_connect(self, msg, body, chan, nick, subnet):
@@ -262,9 +279,9 @@ class Bot:
 		chaninfo = self.channels[chan]
 
 		for name in body.strip().split():
-			flags = set() # TODO
+			flags = set(name) & set('@+')
 			name = name.lstrip('@+')
-			chaninfo.users[name] = flags
+			chaninfo.users[name] = convertflags(flags)
 
 	class Channel:
 		def __init__(self, chan):
@@ -273,4 +290,15 @@ class Bot:
 
 		def __hash__(self):
 			return hash(self.name)
+
+flagtable = {
+	'@': 'o',
+	'+': 'v',
+}
+
+def convertflags(flagset):
+	newset = set()
+	for x in flagset:
+		newset.add(flagtable[x] if x in flagtable else x)
+	return newset
 		
