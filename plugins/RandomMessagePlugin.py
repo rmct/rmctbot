@@ -25,4 +25,5 @@ class RandomMessagePlugin(pyirc.Plugin.Plugin):
 		if self.messageCount < self.messageThreshold: return
 		self.messageCount = 0
 		with open(self.getConfig('message-file', 'messages.txt'), 'r') as f:
-			self.bot.sayAll(random.choice(f.readlines()).strip())
+			messages = [x.strip() for x in f.readlines() if len(x.strip())]
+			self.bot.sayAll(random.choice(messages))
