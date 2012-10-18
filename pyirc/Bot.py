@@ -65,10 +65,14 @@ class Bot:
 		return self.channels.keys()
 
 	def isUserOp(self, chan, user):
-		return False # TODO
+		if chan not in self.channels: return False
+		if user not in self.channels[chan].users: return False
+		return 'o' in self.channels[chan].users[user]
 
 	def isUserVoiced(self, chan, user):
-		return False # TODO
+		if chan not in self.channels: return False
+		if user not in self.channels[chan].users: return False
+		return 'v' in self.channels[chan].users[user]
 
 	def __init__(self, nick, host, port=6667, passwd=None, real=None, debug=False):
 		self.mbfr = deque()

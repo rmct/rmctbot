@@ -58,6 +58,12 @@ class Plugin:
 			return self.bot.config.options(self.getPluginName())
 		return []
 
+	def isUserOp(self, chan, user):
+		return self.bot.isUserOp(chan, user)
+
+	def isUserVoiced(self, chan, user):
+		return self.bot.isUserVoiced(chan, user)
+
 	def log(self, message):
 		now = datetime.datetime.now()
 		now -= datetime.timedelta(microseconds=now.microsecond)
