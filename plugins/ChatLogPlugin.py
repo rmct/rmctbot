@@ -32,6 +32,10 @@ class ChatLogPlugin(pyirc.Plugin.Plugin):
 		self._writelog(chan, '<{:s}> {:s}'.format(sender, msg))
 		return True
 
+	def handleAction(self, chan, sender, msg):
+		self._writelog(chan, '* {:s} {:s}'.format(sender, msg))
+		return True
+
 	def onKick(self, chan, nick):
 		self._writelog(chan, '{:s} was kicked from {:s}'.format(nick, chan))
 		return True

@@ -64,6 +64,12 @@ class Bot:
 	def getChannels(self):
 		return self.channels.keys()
 
+	def isUserOp(self, chan, user):
+		return False # TODO
+
+	def isUserVoiced(self, chan, user):
+		return False # TODO
+
 	def __init__(self, nick, host, port=6667, passwd=None, real=None, debug=False):
 		self.mbfr = deque()
 		self.joinq = deque()
