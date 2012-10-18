@@ -236,7 +236,7 @@ class Bot:
 	@messageHandler('KICK')
 	def msg_KICK(self, msg, body, chan, nick, subnet):
 		for p in self.plugins:
-			p.onQuit(chan, msg.get(3), reason=body)
+			p.onKick(chan, msg.get(3), reason=body)
 
 	@messageHandler('INVITE')
 	def msg_INVITE(self, msg, body, chan, nick, subnet):
