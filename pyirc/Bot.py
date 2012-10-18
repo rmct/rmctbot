@@ -260,13 +260,14 @@ class Bot:
 		mode = msg.get(3)
 		target = msg.get(2)
 
-		if target.startswith('#'):
+		user = msg.get(4)
+		if target.startswith('#') and user is not None:
 			flags = set(mode[1:])
 
-			uflags = self.channels[target].users[msg.get(4)]
+			uflags = self.channels[target].users[user]
 			if mode.startswith('-'): uflags = uflags - flags
 			if mode.startswith('+'): uflags = uflags | flags
-			self.channels[target].users[msg.get(4)] = uflags
+			self.channels[target].users[user] = uflags
 
 		if target == self.nick:
 			if mode == '+x': self.hostmasked = True
