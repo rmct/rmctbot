@@ -1,5 +1,7 @@
 """
 YoutubePlugin by itsmartin
+
+config: none
 """
 
 import re, urllib.request, json
@@ -18,7 +20,7 @@ class YoutubePlugin(pyirc.Plugin.Plugin):
 			title = videoData["entry"]["media$group"]["media$title"]["$t"]
 			duration = self._formatSeconds(int(videoData["entry"]["media$group"]["yt$duration"]["seconds"]))
 			
-			self.bot.say(chan,"%s posted \"%s\" by %s [%s]" % (sender, title, author, duration))
+			self.bot.say(chan, '%s posted "%s" by %s [%s]' % (sender, title, author, duration))
 
 		return True
 
@@ -30,7 +32,7 @@ class YoutubePlugin(pyirc.Plugin.Plugin):
 		seconds = seconds % 60
 
 		if hours > 0:
-			return "%02d:%02d:%02d" % (hours,minutes,seconds)
+			return "%02d:%02d:%02d" % (hours, minutes, seconds)
 		else:
-			return "%02d:%02d" % (minutes,seconds)
+			return "%02d:%02d" % (minutes, seconds)
 
