@@ -115,7 +115,7 @@ class Bot(object):
 			p.handleChat(recp, nick, mtext)
 
 		if mtext.startswith(self.cmdToken):
-			parts = shlex.split(mtext)
+			parts = shlex.split(mtext.encode('utf8').strip())
 			cmd, args = parts[0][1:], parts[1:]
 
 			for p in self.plugins:
