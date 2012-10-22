@@ -1,6 +1,6 @@
 import time, datetime
 
-class Plugin:
+class Plugin(object):
 	PRIORITY_HIGH = -100
 	PRIORITY_NORMAL = 0
 	PRIORITY_LOW = 100

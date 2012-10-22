@@ -6,23 +6,23 @@ config:
 	delay-minutes = number of minutes between updates
 """
 
-import urllib.request, urllib.error, json
+import urllib2, json
 
-import pyirc.Plugin
+import chatlib
 
-class RedditPlugin(pyirc.Plugin.Plugin):
+class RedditPlugin(chatlib.Plugin):
 	def __init__(self, bot):
-		super().__init__(bot)
+		super(type(self), self).__init__(bot)
 		self.setIdleTimer(60.0 * int(self.getConfig('delay-minutes')))
 		self.lastid = None
 
 		self.subs = self.getConfig('subreddits').split(',')
-		self.req = urllib.request.Request('http://www.reddit.com/r/{:s}/new.json?limit=5'.format('+'.join(self.subs)),
-			headers = {'User-Agent': '{:s}@{:s} -- github.com/rmct/rmctbot'.format(self.bot.real, self.bot.host)})
+		self.req = urllib2.Request('http://www.reddit.com/r/{:s}/new.json?limit=5'.format('+'.join(self.subs)),
+			headers = {'User-Agent': '{:s}@{:s} -- github.com/rmct/rmctbot'.format(self.bot.getName(), self.bot.getHost())})
 
 	def idle(self):
 		try:
-			feed = json.loads(urllib.request.urlopen(self.req).read().decode('utf8'))
+			feed = json.loads(urllib2.urlopen(self.req).read())
 			if feed is not None:
 				try:
 					entries = feed['data']['children']
@@ -42,7 +42,7 @@ class RedditPlugin(pyirc.Plugin.Plugin):
 						self.lastid = '#'
 				except KeyError as e:
 					pass
-		except urllib.error.HTTPError as e:
+		except urllib2.HTTPError as e:
 			pass
 		return True
 

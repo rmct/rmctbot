@@ -4,16 +4,17 @@ YoutubePlugin by itsmartin
 config: none
 """
 
-import re, urllib.request, json
-import pyirc.Plugin
+import re, urllib2, json
+import chatlib
 
-class YoutubePlugin(pyirc.Plugin.Plugin):
+class YoutubePlugin(chatlib.Plugin):
 
 	def handleChat(self, chan, sender, msg):
+		print(msg)
 		m = re.search("(?:youtube.com\\/watch\\?(?:.*&)?v=|youtu.be\\/)([\\w-]*)", msg, re.IGNORECASE)
 		if m:
 			videoDataUrl = "https://gdata.youtube.com/feeds/api/videos/%s?v=2&alt=json" % m.group(1)
-			response = urllib.request.urlopen(videoDataUrl).readall().decode('utf-8')
+			response = urllib2.urlopen(videoDataUrl).read()
 			videoData = json.loads(response)
 
 			author = videoData["entry"]["media$group"]["media$credit"][0]["yt$display"]

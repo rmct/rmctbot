@@ -4,9 +4,9 @@ PingPlugin by authorblues
 config: none
 """
 
-import pyirc.Plugin
+import chatlib
 
-class PingPlugin(pyirc.Plugin.Plugin):
+class PingPlugin(chatlib.Plugin):
 	def handleCommand(self, chan, sender, cmd, args):
 		if cmd == 'ping':
 			self.bot.sayTo(chan, sender, 'Pong!')

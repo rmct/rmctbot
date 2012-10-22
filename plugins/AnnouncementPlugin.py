@@ -7,20 +7,20 @@ config:
 	announcement-minutes = comma-seperated list of minutes to announce prior to an event
 """
 
-import sys, urllib.request, json
+import sys, urllib2, json
 import datetime
 import operator
 
-import pyirc.Plugin
+import chatlib
 
-class AnnouncementPlugin(pyirc.Plugin.Plugin):
+class AnnouncementPlugin(chatlib.Plugin):
 	def __init__(self, bot):
-		super().__init__(bot)
+		super(type(self), self).__init__(bot)
 		self.setIdleTimer(60.0)
 
 		self.updateFrequency = 20
 		self.updateTicks = 0
-		self.lastCheck = datetime.datetime.now(datetime.timezone.utc)
+		self.lastCheck = datetime.datetime.now(chatlib.utc)
 
 		self.feeds = dict()
 		self.gcals = self.getConfig('calendars').split(',')
@@ -36,20 +36,24 @@ class AnnouncementPlugin(pyirc.Plugin.Plugin):
 	def handleCommand(self, chan, sender, cmd, args):
 		if cmd == 'upcoming':
 			nextevents = set()
-			now = datetime.datetime.now(datetime.timezone.utc)
+			now = datetime.datetime.now(chatlib.utc)
 			for url,feed in self.feeds.items():
-				feed = self.feeds[url] = json.loads(urllib.request.urlopen(url).read().decode('utf8'))
+				try:
+					feed = self.feeds[url] = json.loads(urllib2.urlopen(url).read())
 
-				if 'entry' not in feed['feed']: continue
-				for entry in feed['feed']['entry']:
-					try:
-						# how long until the event takes place
-						when = datetime.datetime.strptime(entry['gd$when'][0]['startTime'], 
-							'%Y-%m-%dT%H:%M:%S.000Z').replace(tzinfo=datetime.timezone.utc)
-						nextevents.add((entry['title']['$t'], when))
-						break
-					except ValueError as e:
-						pass
+					if 'entry' not in feed['feed']: continue
+					for entry in feed['feed']['entry']:
+						try:
+							# how long until the event takes place
+							when = datetime.datetime.strptime(entry['gd$when'][0]['startTime'], 
+								'%Y-%m-%dT%H:%M:%S.000Z').replace(tzinfo=chatlib.utc)
+							nextevents.add((entry['title']['$t'], when))
+							break
+						except ValueError as e:
+							pass
+
+				except urllib2.HTTPError as e:
+					pass
 
 			if not len(nextevents):
 				self.bot.say(chan, 'No upcoming events are scheduled at this time.')
@@ -63,15 +67,18 @@ class AnnouncementPlugin(pyirc.Plugin.Plugin):
 	def idle(self):
 		for url,feed in self.feeds.items():
 			if self.updateTicks == 0:
-				feed = self.feeds[url] = json.loads(urllib.request.urlopen(url).read().decode('utf8'))
+				try:
+					feed = self.feeds[url] = json.loads(urllib2.urlopen(url).read())
+				except urllib2.HTTPError as e:
+					pass
 
-			now = datetime.datetime.now(datetime.timezone.utc)
+			now = datetime.datetime.now(chatlib.utc)
 			if feed is not None and 'entry' in feed['feed']:
 				for entry in feed['feed']['entry']:
 					try:
 						# how long until the event takes place
 						when = datetime.datetime.strptime(entry['gd$when'][0]['startTime'], 
-							'%Y-%m-%dT%H:%M:%S.000Z').replace(tzinfo=datetime.timezone.utc)
+							'%Y-%m-%dT%H:%M:%S.000Z').replace(tzinfo=chatlib.utc)
 						howlong = when - now
 
 						for minutes in self.announceMinutes:

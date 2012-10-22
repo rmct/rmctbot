@@ -1,0 +1,3 @@
+[submodule "submodules/xmpppy"]
+	path = submodules/xmpppy
+	url = https://github.com/normanr/xmpppy.git

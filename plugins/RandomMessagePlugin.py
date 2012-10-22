@@ -9,11 +9,11 @@ config:
 
 import os, random
 
-import pyirc.Plugin
+import chatlib
 
-class RandomMessagePlugin(pyirc.Plugin.Plugin):
+class RandomMessagePlugin(chatlib.Plugin):
 	def __init__(self, bot):
-		super().__init__(bot)
+		super(type(self), self).__init__(bot)
 		self.setIdleTimer(60.0*int(self.getConfig('delay-minutes')))
 		self.messageThreshold = int(self.getConfig('message-threshold', 5))
 		self.messageCount = 0
