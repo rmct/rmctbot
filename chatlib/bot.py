@@ -24,7 +24,7 @@ class Bot(object):
 	def join(self, *chans):
 		nick = self.jid.getNode()
 		for chan in chans:
-			p = xmpp.protocol.Presence(to='{:s}/{:s}'.format(chan, nick))
+			p = xmpp.protocol.Presence(to='{0:s}/{1:s}'.format(chan, nick))
 			p.setTag('x', namespace=xmpp.protocol.NS_MUC)
 			p.getTag('x').addChild('history', {'maxchars': '0','maxstanzas': '0'})
 			self.conn.send(p)
@@ -45,7 +45,7 @@ class Bot(object):
 		return self
 
 	def sayTo(self, recp, target, msg):
-		self.conn.send(Message(recp, '{:s}: {:s}'.format(target, msg)))
+		self.conn.send(Message(recp, '{0:s}: {1:s}'.format(target, msg)))
 		return self
 
 	def sayAll(self, msg):
@@ -106,7 +106,7 @@ class Bot(object):
 		return self
 
 	def addPlugin(self, plugin):
-		print('* Loading {:s}'.format(plugin.getPluginName()))
+		print('* Loading {0:s}'.format(plugin.getPluginName()))
 		self.plugins.append(plugin)
 		self.plugins.sort(key=operator.attrgetter('priority'))
 

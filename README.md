@@ -1,4 +1,4 @@
 rmctbot
 =======
 
-An IRC bot for the public RMCT channels
+A chat bot for the public RMCT channels

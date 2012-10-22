@@ -1,4 +1,5 @@
-from pyirc.Bot import Bot
+import chatlib
+channels = ['room@example.com']
 
-bot = Bot('pyircbot', 'irc.freenode.net', debug=True)
-bot.loadConfig('example.ini').loadPlugins('./plugins/').join('#testroom').listen()
+bot = chatlib.Bot('username@example.com', passwd="password", debug=True)
+bot.loadConfig('example.ini').loadPlugins('./plugins/').join(*channels).listen()

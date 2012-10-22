@@ -17,8 +17,8 @@ class RedditPlugin(chatlib.Plugin):
 		self.lastid = None
 
 		self.subs = self.getConfig('subreddits').split(',')
-		self.req = urllib2.Request('http://www.reddit.com/r/{:s}/new.json?limit=5'.format('+'.join(self.subs)),
-			headers = {'User-Agent': '{:s}@{:s} -- github.com/rmct/rmctbot'.format(self.bot.getName(), self.bot.getHost())})
+		self.req = urllib2.Request('http://www.reddit.com/r/{0:s}/new.json?limit=5'.format('+'.join(self.subs)),
+			headers = {'User-Agent': '{0:s}@{1:s} -- github.com/rmct/rmctbot'.format(self.bot.getName(), self.bot.getHost())})
 
 	def idle(self):
 		try:

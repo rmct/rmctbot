@@ -72,4 +72,4 @@ class Plugin(object):
 	def log(self, message):
 		now = datetime.datetime.now()
 		now -= datetime.timedelta(microseconds=now.microsecond)
-		print('[{:s}] <{:s}> {:s}'.format(str(now), self.getPluginName(), message))
+		print('[{0:s}] <{1:s}> {2:s}'.format(str(now), self.getPluginName(), message))

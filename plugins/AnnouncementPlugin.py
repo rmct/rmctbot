@@ -61,7 +61,7 @@ class AnnouncementPlugin(chatlib.Plugin):
 
 			title, when = min(nextevents, key=operator.itemgetter(1))
 			howlong = (when - now).total_seconds() // 60
-			self.bot.say(chan, 'Next event is "{:s}" starting {:s}'.format(title, m2time(howlong)))
+			self.bot.say(chan, 'Next event is "{0:s}" starting {1:s}'.format(title, m2time(howlong)))
 			return True
 
 	def idle(self):
