@@ -11,6 +11,7 @@ from collections import deque
 
 class Bot(object):
 	cmdToken = '!'
+	broadcast_channel = 'broadcast'
 
 	def changeNick(self, nick):
 		return self
@@ -22,19 +23,13 @@ class Bot(object):
 		return self.jid.getDomain()
 
 	def join(self, *chans):
-		nick = self.jid.getNode()
+		nick = self.getName()
 		for chan in chans:
 			p = xmpp.protocol.Presence(to='{0:s}/{1:s}'.format(chan, nick))
 			p.setTag('x', namespace=xmpp.protocol.NS_MUC)
 			p.getTag('x').addChild('history', {'maxchars': '0','maxstanzas': '0'})
 			self.conn.send(p)
 			self.channels[chan] = None
-		return self
-
-	def part(self, *chans):
-		return self
-
-	def quit(self, reason=None):
 		return self
 
 	def say(self, recp, msg):
@@ -44,8 +39,12 @@ class Bot(object):
 		self.conn.send(message)
 		return self
 
+	def broadcast(self, msg, host=None, group='all'):
+		if host is None: host = self.getHost()
+		return self.say('{0:s}@{1:s}.{2:s}'.format(group, self.broadcast_channel, host), msg)
+
 	def sayTo(self, recp, target, msg):
-		self.conn.send(Message(recp, '{0:s}: {1:s}'.format(target, msg)))
+		self.say(recp, '{0:s}: {1:s}'.format(target, msg))
 		return self
 
 	def sayAll(self, msg):
@@ -55,12 +54,6 @@ class Bot(object):
 
 	def getChannels(self):
 		return self.channels.keys()
-
-	def isUserOp(self, chan, user):
-		return False
-
-	def isUserVoiced(self, chan, user):
-		return False
 
 	def __init__(self, jid, passwd=None, debug=False):
 		self.debug = debug
@@ -85,9 +78,6 @@ class Bot(object):
 
 	def loadConfig(self, *filenames):
 		self.config.read(*filenames)
-		return self
-
-	def authenticate(self):
 		return self
 
 	def loadPlugins(self, path):
@@ -134,9 +124,7 @@ class Bot(object):
 	def handlePresence(self, session, pres):
 		nick = pres.getFrom().getResource()
 		if pres.getType() == 'unavailable':
-			print(nick, 'logged out')
-		elif True:
-			print(nick, 'logged in')
+			pass
 
 	def handleIq(self, session, iq):
 		reply = iq.buildReply('result')
