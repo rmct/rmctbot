@@ -32,7 +32,7 @@ class RedditPlugin(chatlib.Plugin):
 							if len(entry['data']['title']) > 60:
 								entry['data']['title'] = entry['data']['title'][:57] + '...'
 							self.bot.sayAll(('r/{subreddit:s} : "{title:s}" by {author:s} ' + 
-								'(http://www.reddit.com/r/{subreddit:s}/comments/{id:s})').format(**entry['data']))
+								'(http://redd.it/{id:s})').format(**entry['data']))
 				
 					if len(entries):
 						self.lastid = entries[0]['data']['id']
