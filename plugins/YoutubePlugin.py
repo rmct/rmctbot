@@ -10,18 +10,20 @@ import chatlib
 class YoutubePlugin(chatlib.Plugin):
 
 	def handleChat(self, chan, sender, msg):
-		print(msg)
 		m = re.search("(?:youtube.com\\/watch\\?(?:.*&)?v=|youtu.be\\/)([\\w-]*)", msg, re.IGNORECASE)
 		if m:
-			videoDataUrl = "https://gdata.youtube.com/feeds/api/videos/%s?v=2&alt=json" % m.group(1)
-			response = urllib2.urlopen(videoDataUrl).read()
-			videoData = json.loads(response)
+			try:
+				videoDataUrl = "https://gdata.youtube.com/feeds/api/videos/%s?v=2&alt=json" % m.group(1)
+				response = urllib2.urlopen(videoDataUrl).read()
+				videoData = json.loads(response)
 
-			author = videoData["entry"]["media$group"]["media$credit"][0]["yt$display"]
-			title = videoData["entry"]["media$group"]["media$title"]["$t"]
-			duration = self._formatSeconds(int(videoData["entry"]["media$group"]["yt$duration"]["seconds"]))
+				author = videoData["entry"]["media$group"]["media$credit"][0]["yt$display"]
+				title = videoData["entry"]["media$group"]["media$title"]["$t"]
+				duration = self._formatSeconds(int(videoData["entry"]["media$group"]["yt$duration"]["seconds"]))
 			
-			self.bot.say(chan, '%s posted "%s" by %s [%s]' % (sender, title, author, duration))
+				self.bot.say(chan, '%s posted "%s" by %s [%s]' % (sender, title, author, duration))
+			except Exception as e:
+				pass
 
 		return True
 
