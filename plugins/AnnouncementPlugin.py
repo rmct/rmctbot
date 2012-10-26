@@ -87,7 +87,7 @@ class AnnouncementPlugin(chatlib.Plugin):
 								msg = '"{title:s}" starts {when:s}'.format(title=entry['title']['$t'], when=m2time(minutes))
 								where = entry['gd$where'][0]['valueString']
 								if len(where): msg += ' at {where:s}'.format(where=where)
-								self.bot.sayAll('### ' + msg)
+								self.bot.broadcast('### ' + msg)
 					except ValueError as e:
 						pass
 

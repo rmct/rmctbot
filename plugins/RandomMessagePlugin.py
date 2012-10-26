@@ -16,14 +16,17 @@ class RandomMessagePlugin(chatlib.Plugin):
 		super(type(self), self).__init__(bot)
 		self.setIdleTimer(60.0*int(self.getConfig('delay-minutes')))
 		self.messageThreshold = int(self.getConfig('message-threshold', 5))
-		self.messageCount = 0
+		self.messageCount = dict()
 
 	def handleChat(self, chan, sender, msg):
-		self.messageCount += 1
+		if chan not in self.messageCount:
+			self.messageCount[chan] = 0
+		self.messageCount[chan] += 1
+		return True
 
 	def idle(self):
-		if self.messageCount < self.messageThreshold: return
-		self.messageCount = 0
-		with open(self.getConfig('message-file', 'messages.txt'), 'r') as f:
-			messages = [x.strip() for x in f.readlines() if len(x.strip())]
-			self.bot.sayAll(random.choice(messages))
+		for chan,count in self.messageCount.items():
+			if count < self.messageThreshold: continue
+			with open(self.getConfig('message-file', 'messages.txt'), 'r') as f:
+			self.bot.say(chan, random.choice([x.strip() for x in f.readlines() if len(x.strip())]))
+			self.messageCount[chan] = 0

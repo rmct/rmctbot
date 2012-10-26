@@ -28,24 +28,6 @@ class Plugin(object):
 	def onChannelPart(self, chan, nick):
 		return False
 
-	def onQuit(self, nick, reason=None):
-		return False
-
-	def onInvite(self, chan):
-		return False
-
-	def onKick(self, chan, nick, reason=None):
-		return False
-
-	def onNickChange(self, oldnick, newnick):
-		return False
-
-	def onModeChange(self, chan, nick):
-		return False
-
-	def idle(self):
-		return False
-
 	def setIdleTimer(self, sec=None):
 		self.idledelay = sec
 		self.idleclock = time.time()

@@ -112,14 +112,14 @@ class Bot(object):
 			nick = mfrom.getNode()
 
 		for p in self.plugins:
-			p.handleChat(recp, nick, mtext)
+			if p.handleChat(recp, nick, mtext): break
 
 		if mtext.startswith(self.cmdToken):
 			parts = shlex.split(mtext.encode('utf8').strip())
 			cmd, args = parts[0][1:], parts[1:]
 
 			for p in self.plugins:
-				p.handleCommand(recp, nick, cmd, args)
+				if p.handleCommand(recp, nick, cmd, args): break
 
 	def handlePresence(self, session, pres):
 		nick = pres.getFrom().getResource()
