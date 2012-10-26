@@ -28,5 +28,5 @@ class RandomMessagePlugin(chatlib.Plugin):
 		for chan,count in self.messageCount.items():
 			if count < self.messageThreshold: continue
 			with open(self.getConfig('message-file', 'messages.txt'), 'r') as f:
-			self.bot.say(chan, random.choice([x.strip() for x in f.readlines() if len(x.strip())]))
+				self.bot.say(chan, random.choice([x.strip() for x in f.readlines() if len(x.strip())]))
 			self.messageCount[chan] = 0
