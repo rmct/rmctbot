@@ -60,7 +60,7 @@ class AnnouncementPlugin(chatlib.Plugin):
 				return True
 
 			title, when = min(nextevents, key=operator.itemgetter(1))
-			howlong = (when - now).total_seconds() // 60
+			howlong = seconds(when - now) // 60
 			self.bot.say(chan, 'Next event is "{0:s}" starting {1:s}'.format(title, m2time(howlong)))
 			return True
 
@@ -108,3 +108,6 @@ def m2time(mn):
 			s.append('%d%s' % (n, unit))
 		if not k: break
 	return 'in ' + ' '.join(reversed(s))
+
+def seconds(td):
+	return td.seconds + td.days * 24 * 3600
