@@ -33,7 +33,7 @@ class RedditPlugin(chatlib.Plugin):
 								entry['data']['title'] = entry['data']['title'][:57] + '...'
 							self.bot.sayAll(('r/{subreddit:s} : "{title:s}" by {author:s} ' + 
 								'-- http://redd.it/{id:s}').format(**entry['data']))
-				
+							
 					if len(entries):
 						self.lastid = entries[0]['data']['id']
 
@@ -42,6 +42,8 @@ class RedditPlugin(chatlib.Plugin):
 						self.lastid = '#'
 				except KeyError as e:
 					pass
+		except urllib2.URLError as e:
+			pass
 		except urllib2.HTTPError as e:
 			pass
 		return True
