@@ -54,6 +54,8 @@ class AnnouncementPlugin(chatlib.Plugin):
 
 				except urllib2.HTTPError as e:
 					pass
+				except urllib2.URLError as e:
+					pass
 
 			if not len(nextevents):
 				self.bot.say(chan, 'No upcoming events are scheduled at this time.')
@@ -70,6 +72,8 @@ class AnnouncementPlugin(chatlib.Plugin):
 				try:
 					feed = self.feeds[url] = json.loads(urllib2.urlopen(url).read())
 				except urllib2.HTTPError as e:
+					pass
+				except urllib2.URLError as e:
 					pass
 
 			now = datetime.datetime.now(chatlib.utc)
