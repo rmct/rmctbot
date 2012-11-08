@@ -69,7 +69,7 @@ class Bot(object):
 		conn.RegisterHandler('presence', self.handlePresence)
 		conn.RegisterHandler('iq', self.handleIq)
 
-		conn.auth(jid.getNode(), passwd, sasl=0)
+		conn.auth(jid.getNode(), passwd, sasl=0, resource=jid.getResource())
 		conn.sendInitPresence()
 
 		self.plugins = []
@@ -123,6 +123,7 @@ class Bot(object):
 
 	def handlePresence(self, session, pres):
 		nick = pres.getFrom().getResource()
+		print("%s is %s" % (nick, pres.getRole()))
 		if pres.getType() == 'unavailable':
 			pass
 
