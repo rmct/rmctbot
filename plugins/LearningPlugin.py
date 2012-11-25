@@ -12,7 +12,6 @@ import chatlib
 class LearningPlugin(chatlib.Plugin):
 	def __init__(self, bot):
 		super(type(self), self).__init__(bot, priority=self.PRIORITY_LOW)
-		print(self.getConfig('database-file'))
 		self.conn = sqlite3.connect(self.getConfig('database-file'))
 		self.conn.execute('''
 			CREATE TABLE IF NOT EXISTS Commands (
@@ -45,5 +44,6 @@ class LearningPlugin(chatlib.Plugin):
 
 			if row is None: return False
 			text, = row
-			self.bot.sayTo(chan, target, text % tuple(args))
+			if text.count("%s") == len(args):
+				self.bot.sayTo(chan, target, text % tuple(args))
 			return True
