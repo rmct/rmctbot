@@ -60,7 +60,7 @@ class Bot:
 		return self
 
 	def sayTo(self, recp, target, msg):
-		self.say(recp, '{0:s}: {0:s}'.format(target, msg))
+		self.say(recp, '{0:s}: {1:s}'.format(target, msg))
 		return self
 
 	def sayAll(self, msg):
@@ -283,6 +283,10 @@ class Bot:
 		if target == self.nick:
 			if mode == '+x': self.hostmasked = True
 
+	@messagehandler('NOTICE')
+	def msg_NOTICE(self, msg, body, chan, nick, subnet):
+		pass
+
 	@messagehandler('001')
 	def msg_connect(self, msg, body, chan, nick, subnet):
 		print('Connection established.')
@@ -298,6 +302,8 @@ class Bot:
 			flags = set(name) & set('@+')
 			name = name.lstrip('@+')
 			chaninfo.users[name] = convertflags(flags)
+
+			#self.say('chanserv', 'FLAGS {0:s} {1:s}'.format(chan, name))
 	
 	@messagehandler('396')
 	def msg_hostmask(self, msg, body, chan, nick, subnet):
