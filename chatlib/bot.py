@@ -105,7 +105,7 @@ class Bot:
 
 		self.send('PASS {passwd:s}'.format(passwd=passwd))
 		self.changeNick(nick)
-		self.send('USER {nick:s} {host:s} * :{real:s}'.format(nick=nick, host=host, real=real))
+		self.send('USER {nick:s} {host:s} * :{real:s}'.format(nick=self.nick, host=host, real=self.real))
 
 		self.plugins = []
 		self.channels = dict()
