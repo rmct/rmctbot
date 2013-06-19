@@ -36,13 +36,13 @@ class Bot:
 
 	def part(self, *chans):
 		for chan in chans:
-			self.send('PART {:s}'.format(chan))
+			self.send('PART {0:s}'.format(chan))
 			del self.channels[chan]
 		return self
 
 	def quit(self, reason=None):
-		rtext = '' if reason is None else ':{:s}'.format(reason)
-		self._sendImmediate('QUIT {:s}'.format(rtext).strip())
+		rtext = '' if reason is None else ':{0:s}'.format(reason)
+		self._sendImmediate('QUIT {0:s}'.format(rtext).strip())
 		return self
 
 	def send(self, msg):
@@ -50,7 +50,7 @@ class Bot:
 		return self
 
 	def _sendImmediate(self, msg):
-		if self.debug: print('\r<-- {:s}'.format(msg))
+		if self.debug: print('\r<-- {0:s}'.format(msg))
 		self.conn.send((msg + '\r\n').encode('utf8'))
 
 	def say(self, recp, msg):
@@ -60,7 +60,7 @@ class Bot:
 		return self
 
 	def sayTo(self, recp, target, msg):
-		self.say(recp, '{:s}: {:s}'.format(target, msg))
+		self.say(recp, '{0:s}: {0:s}'.format(target, msg))
 		return self
 
 	def sayAll(self, msg):
@@ -198,7 +198,7 @@ class Bot:
 			self.handle(Message(m))
 	   
 	def handle(self, msg):
-		if self.debug: print('\r--> {:s}'.format(msg))
+		if self.debug: print('\r--> {0:s}'.format(msg))
 
 		if msg.isPing():
 			self._sendImmediate(msg.getPong())
@@ -286,7 +286,7 @@ class Bot:
 	@messagehandler('001')
 	def msg_connect(self, msg, body, chan, nick, subnet):
 		print('Connection established.')
-		self._sendImmediate('MODE {:s} +x'.format(self.nick))
+		self._sendImmediate('MODE {0:s} +x'.format(self.nick))
 		self.connected = True
 
 	@messagehandler('353')
