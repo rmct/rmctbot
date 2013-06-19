@@ -48,7 +48,8 @@ class AnnouncementPlugin(chatlib.Plugin):
 							when = datetime.datetime.strptime(entry['gd$when'][0]['startTime'], 
 								'%Y-%m-%dT%H:%M:%S.000Z').replace(tzinfo=chatlib.utc)
 							nextevents.add((entry['title']['$t'], when))
-							break
+							if when > now:
+								break
 						except ValueError as e:
 							pass
 
@@ -60,8 +61,12 @@ class AnnouncementPlugin(chatlib.Plugin):
 			if not len(nextevents):
 				self.bot.say(chan, 'No upcoming events are scheduled at this time.')
 				return True
-
+			
 			title, when = min(nextevents, key=operator.itemgetter(1))
+			if when < now:
+				self.bot.say(chan, '"{0:s}" is currently ongoing.'.format(title))
+				nextevents.remove((title,when))
+				title,when = min(nextevents, key=operator.itemgetter(1))
 			howlong = seconds(when - now) // 60
 			self.bot.say(chan, 'Next event is "{0:s}" starting {1:s}'.format(title, m2time(howlong)))
 			return True
