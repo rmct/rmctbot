@@ -34,6 +34,10 @@ class Bot:
 				self.joinq.append(chan)
 		return self
 
+	def invite(self, chan, nick):
+		self._sendImmediate('INVITE {0:s} {1:s}'.format(nick, chan))
+		return self
+
 	def part(self, *chans):
 		for chan in chans:
 			self.send('PART {0:s}'.format(chan))
@@ -172,7 +176,6 @@ class Bot:
 				
 						if chan not in self.channels.values():
 							self.send('JOIN {chan:s}'.format(chan=chan))
-							self.channels[chan] = Bot.Channel(chan)
 
 					clock = time.time()
 					for p in self.plugins:
@@ -227,6 +230,9 @@ class Bot:
 
 	@messagehandler('JOIN')
 	def msg_JOIN(self, msg, body, chan, nick, subnet):
+		if nick == self.nick:
+			print('Joining {0:s}'.format(chan))
+			self.channels[chan] = Bot.Channel(chan)
 		if chan in self.channels:
 			self.channels[chan].users[nick] = set() # TODO
 		for p in self.plugins:
@@ -236,6 +242,8 @@ class Bot:
 	def msg_PART(self, msg, body, chan, nick, subnet):
 		if chan in self.channels:
 			del self.channels[chan].users[nick]
+			if nick == self.nick:
+				del self.channels[chan]
 		for p in self.plugins:
 			p.onChannelPart(chan, nick)
 
@@ -359,7 +367,7 @@ class Message:
 
 	def getMessageText(self):
 		if ' :' not in self.msg: return None
-		return self.msg.split(' :', 1)[1]
+		return self.msg.split(' :', 1)[1].strip()
 
 	def isCommand(self):
 		body = self.getMessageBody()
@@ -367,15 +375,15 @@ class Message:
 
 	def getNick(self):
 		parse = Message.deliveryParser.search(self.get(0))
-		return None if parse is None else parse.group(1)
+		return None if parse is None else parse.group(1).strip()
 
 	def getSubnet(self):
 		parse = Message.deliveryParser.search(self.get(0))
-		return None if parse is None else parse.group(2)
+		return None if parse is None else parse.group(2).strip()
 
 	def getChannel(self):
 		csearch = Message.channelFinder.search(self.msg)
-		return None if csearch is None else csearch.group(1)
+		return None if csearch is None else csearch.group(1).strip()
 
 	def getDelivery(self):
 		return self.getChannel(), self.getNick(), self.getSubnet() 
