@@ -353,7 +353,7 @@ class Message:
 		self.msgtype = self.get(1)
 
 	def __str__(self):
-		return self.msg
+		return self.msg.encode('utf8', 'replace')
 
 	def isPing(self):
 		return self.msg.startswith('PING')
