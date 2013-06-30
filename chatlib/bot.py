@@ -72,6 +72,9 @@ class Bot:
 			self.say(chan, msg)
 		return self
 
+	def broadcast(self, msg):
+		return self.sayAll(msg)
+
 	def getChannels(self):
 		return self.channels.keys()
 
